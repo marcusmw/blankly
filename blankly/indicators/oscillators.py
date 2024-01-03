@@ -160,3 +160,117 @@ def stochastic_oscillator(high_data, low_data, close_data, pct_k_period=14, pct_
     close_data = convert_to_numpy(close_data)
     stoch = ti.stoch(high_data, low_data, close_data, pct_k_period, pct_k_slowing_period, pct_d_period)
     return pd.Series(stoch) if use_series else stoch
+
+def cm_ult_macd_mtf(data):
+    "Runs on scraped data"
+    if len(data) >= 1:
+        histogram = data[-1].get('CM_histogram')
+        cross = data[-1].get('CM_cross')
+    else:
+        return 0
+    
+    if histogram is not None and cross is not None:
+        if cross == 0 or cross == 1e+100:
+            return 0
+        # Cross is active therefore buy/sell
+        if histogram > 0:
+            return 1
+        elif histogram < 0:
+            return -1
+        else:
+            return 0
+    else:
+        return 0
+    
+
+def squeeze_mom(data):
+    "Runs on scraped data"
+    if len(data) >= 2:
+        #cross colour: gray is 6, black is 5
+        mom = data[-1].get('Squeeze_mom_plot') 
+        cross = data[-1].get('Squeeze_mom_plot2') 
+        last_mom = data[-2].get('Squeeze_mom_plot') 
+        last_cross = data[-2].get('Squeeze_mom_plot2')
+        
+        if mom is not None and cross is not None and last_mom is not None and last_cross is not None:
+            if cross  == 6 and last_cross == 5 and mom> 0:
+                return 1
+            elif last_mom >= 0 and mom < 0:
+                return -1
+            else:
+                return 0
+        else:
+            return 0
+    else:
+        return 0
+    
+def super_trend(data):
+    "Runs on scraped data"
+    if len(data) >= 1:
+        buy = data[-1].get("Super_Trend_Buy2")
+        sell = data[-1].get("Super_Trend_Sell2")
+    else:
+        return 0
+
+    if buy is not None and sell is not None:
+        if buy == 1:
+            return 1
+        elif sell == 1:
+            return -1
+        else:
+            return 0
+    else:
+        return 0
+
+def ult_ma_mtf_v2(data):
+    "Runs on scraped data"
+    if len(data) >= 2:
+        color = data[-1].get("Ult_MA_MTF_colorer")
+        prev_color = data[-2].get("Ult_MA_MTF_colorer")
+    else:
+        return 0
+
+    if color is not None and prev_color is not None:
+        if color == prev_color:
+            return 0
+        elif color == 0:
+            return 1
+        else:
+            return -1
+    else:
+        return 0
+
+def wave_trend_sc(data):
+    "Runs on scraped data"
+    if len(data) >= 1:
+        osc = data[-1].get("Wave_Trend_Osc")
+        signal = data[-1].get("Wave_Trend_Signal")
+        overbought = data[-1].get("Wave_Trend_Over")
+        underbought = data[-1].get("Wave_Trend_Under")
+    else:
+        return 0
+
+    if osc is not None and signal is not None and overbought is not None and underbought is not None:
+        if osc > overbought and osc <= signal:
+            return -1
+        elif osc < underbought and osc >= signal:
+            return 1
+        else:
+            return 0
+    else:
+        return 0
+    
+def williams_vix_fix(data):
+    "Runs on scraped data"
+    if len(data) >= 1:
+        w_vf = data[-1].get('Williams_VF_colorer')
+    else:
+        return 0
+
+    if w_vf is not None:
+        if w_vf == 0:
+            return 1
+        else:
+            return 0
+    else:
+        return 0
