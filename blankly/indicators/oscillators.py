@@ -240,7 +240,7 @@ def ult_ma_mtf_v2(data):
     else:
         return 0
 
-def wave_trend_sc(data):
+def wave_trend_osc(data):
     "Runs on scraped data"
     if len(data) >= 1:
         osc = data[-1].get("Wave_Trend_Osc")
